@@ -51,4 +51,4 @@ MIT
 ## Credits
 
 - [Roman Steiner](https://github.com/rasteiner) (Author)
-- [dmitrysoshnikov](https://github.com/dmitrysoshnikov)] (for his excellent parser generator tool)
+- [dmitrysoshnikov](https://github.com/dmitrysoshnikov) (for his excellent parser generator tool)
