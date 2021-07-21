@@ -72,7 +72,8 @@ jobs:
           name: Update dist repo
           #You need to set environment variables GITHUB_EMAIL and GITHUB_NAME
           command: |
-            git clone -q https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git dist
+            echo git clone -q "https://.....@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git" dist
+            git clone -q "https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git" dist
             cd dist
             git config user.email "${GITHUB_EMAIL}"
             git config user.name "${GITHUB_NAME}"
@@ -80,8 +81,10 @@ jobs:
             git add .
             git commit -m "update to ${CIRCLE_TAG}"
             git tag ${CIRCLE_TAG}
-            git push -q https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git main
-            git push -q https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git ${CIRCLE_TAG}
+            echo git push -q "https://......@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git" main
+            git push -q "https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git" main
+            echo git push -q "https://......@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git" ${CIRCLE_TAG}
+            git push -q "https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git" ${CIRCLE_TAG}
 workflows:
   version: 2
   main:
