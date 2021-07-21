@@ -48,39 +48,6 @@ Kirby::plugin('rasteiner/k3-query-field', [
       ],
       'save' => function($value) {
         return Data::encode($value, 'json');
-      },
-      'methods' => [
-        'query' => function($query) {
-
-          cacca();
-          if(is_string($query)) {
-            $q = new Query($query, [
-              'site' => site(),
-              'page' => $this->model(),
-              'pages' => site()->pages(),
-              'kirby' => kirby()
-            ]);
-
-            return $q->result();
-          } else {
-            throw new Exception("query not a string: " . print_r($query, true), 1);
-            
-          }
-
-        }
-      ],
-      'api' => function() {
-        return [
-          [
-            'pattern' => 'query',
-            'method' => 'post',
-            'action' => function() {
-              $field = $this->field();
-              $query = $this->requestBody('query', 'page.children');
-              return $field->query($query['clean']);
-            }
-          ]
-        ];
       }
     ]
   ]
