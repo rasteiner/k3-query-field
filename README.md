@@ -15,30 +15,34 @@ Download and copy a release (from the release tab) to `/site/plugins/k3-query-fi
 ### Git submodule
 
 ```
-git submodule add https://github.com/rasteiner-dist/k3-trevor-view.git site/plugins/k3-trevor-view
+git submodule add https://github.com/rasteiner-dist/k3-query-field.git site/plugins/k3-query-field
 ```
 
 ### Composer
 
 ```
-composer require rasteiner/k3-trevor-view
+composer require rasteiner/k3-query-field
 ```
 
-## Setup
+## Example
 
-Languages must be enabled in your installation and some languages must be created.
+In the blueprint:
 
-See the Kirby documentation.
-https://getkirby.com/docs/guide/languages/introduction#enabling-the-multi-lang-feature-in-the-panel
+```yaml
+fields:
+  myQuery:
+    type: query
+    label: My Query
 
+```
 
-## Use it
-After installation and setup, you'll find a "Trevor" menu entry in your panel.
-On the left you will see all your language variable keys, click on one to edit the translations.
+Run a query in a template:
+```php
+<?php for($page->myQuery()->executeQuery(compact('kirby', 'site', 'page')) as $item): ?>
+  <?= $item->title() ?>
+<?php endforeach ?>
 
-Keys with missing translations will have a red dot next to them.
-
-While editing a translation, you can navigate from one key to the next by pressing Cmd/Ctrl + Down. Cmd/Ctrl + Up gets you to the previous.
+```
 
 ## License
 
@@ -46,4 +50,5 @@ MIT
 
 ## Credits
 
-- [Roman Steiner](https://github.com/rasteiner)
+- [Roman Steiner](https://github.com/rasteiner) (Author)
+- [dmitrysoshnikov](https://github.com/dmitrysoshnikov)] (for his excellent parser generator tool)
