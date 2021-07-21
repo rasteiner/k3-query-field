@@ -1,0 +1,15 @@
+{
+  "name": "rasteiner/k3-query-field",
+  "description": "Kirby 3 Field to edit KQL queries",
+  "type": "kirby-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Roman Steiner",
+      "email": "roman@toastlab.ch"
+    }
+  ],
+  "require": {
+    "getkirby/composer-installer": "^1.1"
+  }
+}
