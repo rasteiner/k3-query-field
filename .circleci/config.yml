@@ -80,7 +80,7 @@ jobs:
             git add .
             git commit -m "update to ${CIRCLE_TAG}"
             git tag ${CIRCLE_TAG}
-            git push -q https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git master
+            git push -q https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git main
             git push -q https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}-dist/${CIRCLE_PROJECT_REPONAME}.git ${CIRCLE_TAG}
 workflows:
   version: 2
