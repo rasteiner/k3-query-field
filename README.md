@@ -38,7 +38,7 @@ fields:
 
 Run a query in a template:
 ```php
-<?php for($page->myQuery()->executeQuery(compact('kirby', 'site', 'page')) as $item): ?>
+<?php foreach($page->myQuery()->executeQuery(compact('kirby', 'site', 'page')) as $item): ?>
   <?= $item->title() ?>
 <?php endforeach ?>
 
