@@ -1,6 +1,6 @@
-# Trevor trenslates your voriables.
+# Query Field
 
-Edit your language translation variables from the Panel.
+A Kirby 3 field plugin to edit KQL Queries
 
 > This plugin is completely free and published under the MIT license. However, if you are using it in a commercial project and want to help me keep up with maintenance, please consider [buying me caffeine](https://buymeacoff.ee/zLFxgCHlG) or purchasing your license(s) through my [affiliate link](https://a.paddle.com/v2/click/1129/36164?link=1170).
 
