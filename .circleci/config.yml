@@ -26,10 +26,10 @@ jobs:
       # build
       - run: npm run build
       - run:
-          name: Create artifacts (zip index.js, index.php, license.txt)
+          name: Create artifacts (zip index.js, index.php, license.txt, composer.json)
           command: |
             mkdir ./artifacts
-            zip -r artifacts/build index.* LICENSE.txt
+            zip -r artifacts/build index.* LICENSE.txt composer.json
       - persist_to_workspace:
           root: ./artifacts
           paths:
