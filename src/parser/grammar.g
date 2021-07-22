@@ -33,7 +33,7 @@ Expression
 
 IndexExpression
     : MethodExpression
-    | IndexExpression LBRACKET Expression RBRACKET { console.dir($$); $$ = [ 'subscript', [$1, $3] ] }
+    | IndexExpression LBRACKET Expression RBRACKET { $$ = [ 'subscript', [$1, $3] ] }
     ;
 
 MethodExpression
