@@ -1,12 +1,12 @@
 {
   "private": true,
   "scripts": {
-    "watch": "npx -y kirbyup src/index.js --watch",
-    "build": "npx -y kirbyup src/index.js",
-    "syntax": "syntax-cli -g src/parser/grammar.g -m lalr1 -o src/parser/parser.js",
-    "clean": "rm -rf node_modules"
+    "watch": "kirbyup src/index.js --watch",
+    "build": "kirbyup src/index.js",
+    "syntax": "syntax-cli -g src/parser/grammar.g -m lalr1 -o src/parser/parser.js"
   },
   "devDependencies": {
+    "kirbyup": "^0.9.5",
     "syntax-cli": "^0.1.22"
   }
 }
