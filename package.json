@@ -3,6 +3,10 @@
   "scripts": {
     "watch": "npx -y kirbyup src/index.js --watch",
     "build": "npx -y kirbyup src/index.js",
-    "syntax": "npx -y syntax-cli -g src/parser/grammar.g -m lalr1 -o src/parser/parser.js"
+    "syntax": "syntax-cli -g src/parser/grammar.g -m lalr1 -o src/parser/parser.js",
+    "clean": "rm -rf node_modules"
+  },
+  "devDependencies": {
+    "syntax-cli": "^0.1.22"
   }
 }
