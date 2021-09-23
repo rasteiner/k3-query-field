@@ -37,6 +37,7 @@ fields:
 ```
 
 Run a query in a template:
+
 ```php
 <?php foreach($page->myQuery()->executeQuery(compact('kirby', 'site', 'page')) as $item): ?>
   <?= $item->title() ?>

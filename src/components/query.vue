@@ -1,7 +1,15 @@
 <template>
   <k-field v-bind="$attrs" class="query-field">
     <div class="container" ref="container">
-      <pre ref="editor" spellcheck="false" @input="onInput($event.target.innerText)" :contenteditable="plaintextOnlySupport ? 'plaintext-only' : 'true'" @keydown.tab.prevent="tabPress" @keypress.enter.prevent="enterPress" class="editor"></pre>
+      <pre
+        ref="editor"
+        spellcheck="false"
+        @input="onInput($event.target.innerText)"
+        :contenteditable="plaintextOnlySupport ? 'plaintext-only' : 'true'"
+        @keydown.tab.prevent="tabPress"
+        @keypress.enter.prevent="enterPress"
+        class="editor"
+      ></pre>
       <pre ref="styled" class="styled"></pre>
     </div>
     <pre v-if="error && value" class="error" v-html="error"></pre>
@@ -9,55 +17,59 @@
 </template>
 
 <script>
+import * as parser from "../parser/parser";
 
-import * as parser from '../parser/parser'
+function supportsPlaintextEditables() {
+  const div = document.createElement("div");
+  div.setAttribute("contenteditable", "PLAINTEXT-ONLY");
 
-function supportsPlaintextEditables () {
-  const div = document.createElement('div');
-  div.setAttribute('contenteditable', 'PLAINTEXT-ONLY');
-
-  return div.contentEditable === 'plaintext-only';
+  return div.contentEditable === "plaintext-only";
 }
 
 function nodeToStr(node) {
-  switch(node[0]) {
-    
-    case 'id': return node[1];
-    case 'val': 
+  switch (node[0]) {
+    case "id":
+      return node[1];
+    case "val":
       switch (typeof node[1]) {
         case "string":
-          return `${node[2]}${node[1]}${node[2]}`
+          return `${node[2]}${node[1]}${node[2]}`;
         case "number":
-          return node[1]
+          return node[1];
         case "boolean":
-          return node[1] ? 'true' : 'false'
+          return node[1] ? "true" : "false";
         case "object": //object, array, null all resolve as "object". In KQL there are no objects
-          return node[1] === null ? 'null' : `[${node[1].map(nodeToStr).join(', ')}]`
+          return node[1] === null
+            ? "null"
+            : `[${node[1].map(nodeToStr).join(", ")}]`;
       }
-    case 'access': return node[1].map(nodeToStr).join('.');
-    case 'method': 
-      if(node[1][1].length) {
-        return `${nodeToStr(node[1][0])}(${node[1][1].map(nodeToStr).join(', ')})`
+    case "access":
+      return node[1].map(nodeToStr).join(".");
+    case "method":
+      if (node[1][1].length) {
+        return `${nodeToStr(node[1][0])}(${node[1][1]
+          .map(nodeToStr)
+          .join(", ")})`;
       } else {
-        return nodeToStr(node[1][0])
+        return nodeToStr(node[1][0]);
       }
-    case 'subscript': 
-      return `${nodeToStr(node[1][0])}[${nodeToStr(node[1][1])}]`
+    case "subscript":
+      return `${nodeToStr(node[1][0])}[${nodeToStr(node[1][1])}]`;
   }
 
-  return ''
+  return "";
 }
 
-function outdent(lines) {  
-  return lines.map(line => {
-    return line.replace(/^\s{1,2}/g, '')
-  })
+function outdent(lines) {
+  return lines.map((line) => {
+    return line.replace(/^\s{1,2}/g, "");
+  });
 }
 
 function indent(lines) {
-  return lines.map(line => {
-    return '  ' + line
-  })
+  return lines.map((line) => {
+    return "  " + line;
+  });
 }
 
 export default {
@@ -66,241 +78,281 @@ export default {
       error: null,
       styledHtml: null,
       observer: null,
-      plaintextOnlySupport: supportsPlaintextEditables()
-    }
+      plaintextOnlySupport: supportsPlaintextEditables(),
+    };
   },
   props: {
     value: {
       default: {
-        literal: '',
-        clean: ''
+        literal: "",
+        clean: "",
       },
-      type: Object
+      type: Object,
     },
   },
 
   watch: {
     value(val) {
-      if(val && val.literal) {
-        this.parse(val.literal || '')
-        if(this.$refs.editor.innerText !== val.literal) {
-          this.setText(val.literal)
+      if (val && val.literal) {
+        this.parse(val.literal || "");
+        if (this.$refs.editor.innerText !== val.literal) {
+          this.setText(val.literal);
         }
       }
-    }
+    },
   },
 
   mounted() {
     const observer = new ResizeObserver(([entry]) => {
-      if(this.$refs.container) {
-        const h = entry.borderBoxSize[0].blockSize
+      if (this.$refs.container) {
+        const h = entry.borderBoxSize[0].blockSize;
 
-        this.$refs.container.style.height = `${h}px`
+        this.$refs.container.style.height = `${h}px`;
       }
-    })
-    observer.observe(this.$refs.editor)
+    });
+    observer.observe(this.$refs.editor);
     this.observer = observer;
 
-    if(this.value) {
-      this.setText(this.value.literal || '')
-      this.parse(this.value.literal)
+    if (this.value) {
+      this.setText(this.value.literal || "");
+      this.parse(this.value.literal);
     }
   },
 
   beforeDestroy() {
-    this.observer.disconnect()
+    this.observer.disconnect();
   },
 
   computed: {
     query() {
-      if(this.ast) {
-        
-        return nodeToStr(this.ast)
-
+      if (this.ast) {
+        return nodeToStr(this.ast);
       } else {
-        return ''
+        return "";
       }
-    }
+    },
   },
+
   methods: {
     select(selectionStart, selectionEnd) {
-      const range = document.createRange()
-      range.setStart(this.$refs.editor.firstChild, selectionStart)
-      range.setEnd(this.$refs.editor.firstChild, selectionEnd || selectionStart)
-      const sel = window.getSelection()
-      sel.removeAllRanges()
-      sel.addRange(range)
+      const range = document.createRange();
+      range.setStart(this.$refs.editor.firstChild, selectionStart);
+      range.setEnd(
+        this.$refs.editor.firstChild,
+        selectionEnd || selectionStart
+      );
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
     },
 
     setText(text, selectionStart, selectionEnd) {
+      this.$refs.editor.innerHTML = "";
+      this.$refs.editor.appendChild(document.createTextNode(text));
 
-      this.$refs.editor.innerHTML = ''
-      this.$refs.editor.appendChild(document.createTextNode(text))
-
-      if(selectionStart) {
-        this.select(selectionStart, selectionEnd)
+      if (selectionStart) {
+        this.select(selectionStart, selectionEnd);
       }
     },
 
     tabPress(event) {
-      const selection = window.getSelection()
-      const range = selection.getRangeAt(0)
-      const allNodes = Array.from(this.$refs.editor.childNodes).filter(n => n.nodeType === Node.TEXT_NODE)
-      const lines = this.$refs.editor.textContent.split('\n')
-      
-      const beforeNodes = range.startContainer.nodeType === Node.TEXT_NODE ? allNodes.slice(0, allNodes.indexOf(range.startContainer)) : []
-      const nodeBefore = range.startContainer.textContent.substr(0, range.startOffset)
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      const allNodes = Array.from(this.$refs.editor.childNodes).filter(
+        (n) => n.nodeType === Node.TEXT_NODE
+      );
+      const lines = this.$refs.editor.textContent.split("\n");
 
-      const beforeText = beforeNodes.map(n => n.textContent).join('') + nodeBefore
+      const beforeNodes =
+        range.startContainer.nodeType === Node.TEXT_NODE
+          ? allNodes.slice(0, allNodes.indexOf(range.startContainer))
+          : [];
+      const nodeBefore = range.startContainer.textContent.substr(
+        0,
+        range.startOffset
+      );
 
-      const selectedText = range.toString()
-      
-      const startLine = beforeText.split('\n').length - 1
-      let endLine = (beforeText+selectedText).split('\n').length
-      const affectedLines = lines.slice(startLine, endLine)
+      const beforeText =
+        beforeNodes.map((n) => n.textContent).join("") + nodeBefore;
 
-      let startColumn = beforeText.split('\n').slice(-1)[0].length
-      let endColumn = (beforeText+selectedText).split('\n').slice(-1)[0].length
-      if(endColumn === 0 && affectedLines.length > 1) {
-        affectedLines.pop()
-        endColumn = affectedLines[affectedLines.length-1].length
-        endLine -= 1
+      const selectedText = range.toString();
+
+      const startLine = beforeText.split("\n").length - 1;
+      let endLine = (beforeText + selectedText).split("\n").length;
+      const affectedLines = lines.slice(startLine, endLine);
+
+      let startColumn = beforeText.split("\n").slice(-1)[0].length;
+      let endColumn = (beforeText + selectedText)
+        .split("\n")
+        .slice(-1)[0].length;
+      if (endColumn === 0 && affectedLines.length > 1) {
+        affectedLines.pop();
+        endColumn = affectedLines[affectedLines.length - 1].length;
+        endLine -= 1;
       }
 
-      if(affectedLines.length === 1 && affectedLines[0].length > selectedText.length || affectedLines[0].length === 0) {
-        if(event.shiftKey) {
-          const newLine = outdent(affectedLines)[0]
-          const delta = newLine.length - lines[startLine].length
-          lines[startLine] = newLine
-          startColumn = startColumn + delta
-          endColumn = endColumn + delta
+      if (
+        (affectedLines.length === 1 &&
+          affectedLines[0].length > selectedText.length) ||
+        affectedLines[0].length === 0
+      ) {
+        if (event.shiftKey) {
+          const newLine = outdent(affectedLines)[0];
+          const delta = newLine.length - lines[startLine].length;
+          lines[startLine] = newLine;
+          startColumn = startColumn + delta;
+          endColumn = endColumn + delta;
         } else {
-          lines[startLine] = lines[startLine].substr(0, startColumn) + '  ' + lines[startLine].substr(endColumn)
-          startColumn = startColumn + 2
-          endColumn = startColumn
+          lines[startLine] =
+            lines[startLine].substr(0, startColumn) +
+            "  " +
+            lines[startLine].substr(endColumn);
+          startColumn = startColumn + 2;
+          endColumn = startColumn;
         }
       } else {
-        const newLines = event.shiftKey ? outdent(affectedLines) : indent(affectedLines)
-        
-        const deltaStartRow = newLines[0].length - affectedLines[0].length
-        const deltaEndRow = newLines[newLines.length - 1].length - affectedLines[affectedLines.length - 1].length
-        lines.splice(startLine, newLines.length, ...newLines)
+        const newLines = event.shiftKey
+          ? outdent(affectedLines)
+          : indent(affectedLines);
 
-        if(affectedLines.length === 1) {
-          startColumn = 0
+        const deltaStartRow = newLines[0].length - affectedLines[0].length;
+        const deltaEndRow =
+          newLines[newLines.length - 1].length -
+          affectedLines[affectedLines.length - 1].length;
+        lines.splice(startLine, newLines.length, ...newLines);
+
+        if (affectedLines.length === 1) {
+          startColumn = 0;
         } else {
-          startColumn += deltaStartRow
-          startColumn = Math.max(startColumn, 0)
+          startColumn += deltaStartRow;
+          startColumn = Math.max(startColumn, 0);
         }
 
-        endColumn += deltaEndRow
-
+        endColumn += deltaEndRow;
       }
 
-      const startOffset = lines.slice(0, startLine).join('\n').length + 1 + startColumn
-      const endOffset = lines.slice(0, endLine-1).join('\n').length + 1 + endColumn
+      const startOffset =
+        lines.slice(0, startLine).join("\n").length + 1 + startColumn;
+      const endOffset =
+        lines.slice(0, endLine - 1).join("\n").length + 1 + endColumn;
 
-      const newText = lines.join('\n')
-      this.setText(newText, startOffset, endOffset)
-      this.onInput(newText)
+      const newText = lines.join("\n");
+      this.setText(newText, startOffset, endOffset);
+      this.onInput(newText);
     },
 
     enterPress(event) {
-      const selection = window.getSelection()
-      const range = selection.getRangeAt(0)
-      const allNodes = Array.from(this.$refs.editor.childNodes).filter(n => n.nodeType === Node.TEXT_NODE)
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      const allNodes = Array.from(this.$refs.editor.childNodes).filter(
+        (n) => n.nodeType === Node.TEXT_NODE
+      );
 
-      const beforeNodes = range.startContainer.nodeType === Node.TEXT_NODE ? allNodes.slice(0, allNodes.indexOf(range.startContainer)) : []
-      const nodeBefore = range.startContainer.textContent.substr(0, range.startOffset)
+      const beforeNodes =
+        range.startContainer.nodeType === Node.TEXT_NODE
+          ? allNodes.slice(0, allNodes.indexOf(range.startContainer))
+          : [];
+      const nodeBefore = range.startContainer.textContent.substr(
+        0,
+        range.startOffset
+      );
 
-      const afterNodes = range.endContainer.nodeType === Node.TEXT_NODE ? allNodes.slice(allNodes.indexOf(range.endContainer) + 1) : []
-      const nodeAfter = range.endContainer.textContent.substr(range.endOffset)
+      const afterNodes =
+        range.endContainer.nodeType === Node.TEXT_NODE
+          ? allNodes.slice(allNodes.indexOf(range.endContainer) + 1)
+          : [];
+      const nodeAfter = range.endContainer.textContent.substr(range.endOffset);
 
-      const beforeText = beforeNodes.map(n => n.textContent).join('') + nodeBefore
-      const afterText = nodeAfter + afterNodes.map(n => n.textContent).join('')
+      const beforeText =
+        beforeNodes.map((n) => n.textContent).join("") + nodeBefore;
+      const afterText =
+        nodeAfter + afterNodes.map((n) => n.textContent).join("");
 
-      const startLine = beforeText.split('\n').pop()
+      const startLine = beforeText.split("\n").pop();
 
-      const indentCount = startLine.match(/^\s*/)[0].length
+      const indentCount = startLine.match(/^\s*/)[0].length;
 
-      const newLine = '\n' + new Array(indentCount + 1).join(' ')
-      const newText = beforeText + newLine + (afterText.endsWith('\n') ? afterText : afterText + '\n')
-      console.log(newLine.length)
-      this.setText(newText, beforeText.length + newLine.length)
-      this.onInput(newText)
+      const newLine = "\n" + new Array(indentCount + 1).join(" ");
+      const newText =
+        beforeText +
+        newLine +
+        (afterText.endsWith("\n") ? afterText : afterText + "\n");
+      console.log(newLine.length);
+      this.setText(newText, beforeText.length + newLine.length);
+      this.onInput(newText);
     },
 
     focus() {
-      this.select(this.$refs.editor.firstChild.length)
+      this.select(this.$refs.editor.firstChild.length);
     },
 
     parse(text) {
-      const fragment = document.createDocumentFragment()
-      
-      this.$refs.styled.innerHTML = ''
+      const fragment = document.createDocumentFragment();
 
-      if(text.trim()) {
+      this.$refs.styled.innerHTML = "";
 
+      if (text.trim()) {
         let cur = 0;
 
-
         try {
-
-          parser.onShift = token => {
-            if(token.startOffset > cur) {
-              fragment.appendChild(document.createTextNode(text.slice(cur, token.startOffset)))
+          parser.onShift = (token) => {
+            if (token.startOffset > cur) {
+              fragment.appendChild(
+                document.createTextNode(text.slice(cur, token.startOffset))
+              );
             }
 
-            const span = document.createElement('span')
-            span.appendChild(document.createTextNode(text.slice(token.startOffset, token.endOffset)))
-            span.className = 'color-' + token.type.toLocaleLowerCase()
+            const span = document.createElement("span");
+            span.appendChild(
+              document.createTextNode(
+                text.slice(token.startOffset, token.endOffset)
+              )
+            );
+            span.className = "color-" + token.type.toLocaleLowerCase();
 
-            fragment.appendChild(span)
-          
-            cur = token.endOffset
-            return token
-          }
+            fragment.appendChild(span);
 
+            cur = token.endOffset;
+            return token;
+          };
 
-          const ast = parser.parse(text, {captureLocations: true})
-          this.error = null
-          
-          this.$refs.styled.appendChild(fragment)
+          const ast = parser.parse(text, { captureLocations: true });
+          this.error = null;
 
-          return {
-            literal: text,
-            clean: nodeToStr(ast)
-          }
-          
-        } catch(e) {
-          this.ast = null
-          
-          fragment.appendChild(document.createTextNode(text.slice(cur)))
-          this.$refs.styled.appendChild(fragment)
-          this.error = e
+          this.$refs.styled.appendChild(fragment);
 
           return {
             literal: text,
-            clean: ''
-          }
+            clean: nodeToStr(ast),
+          };
+        } catch (e) {
+          this.ast = null;
+
+          fragment.appendChild(document.createTextNode(text.slice(cur)));
+          this.$refs.styled.appendChild(fragment);
+          this.error = e;
+
+          return {
+            literal: text,
+            clean: "",
+          };
         }
       } else {
-        this.error = null
+        this.error = null;
         return {
-          literal: '',
-          clean: ''
-        }
+          literal: "",
+          clean: "",
+        };
       }
     },
 
     onInput(text) {
       this.$nextTick(() => {
-        this.$emit('input', this.parse(text))
-      })
-
-    }
-  }
-}
+        this.$emit("input", this.parse(text));
+      });
+    },
+  },
+};
 </script>
 
 <style>
@@ -310,9 +362,11 @@ export default {
   overflow-x: auto;
   overflow-y: hidden;
 }
+
 .query-field .container > * {
   padding: 1rem;
 }
+
 .query-field .error {
   color: var(--color-negative);
   margin-top: 0.5rem;
@@ -342,7 +396,6 @@ export default {
   min-height: 3rem;
 }
 
-
 .query-field span.color-identifier {
   color: var(--color-identifier);
 }
@@ -370,10 +423,12 @@ export default {
 .query-field span.color-null {
   color: var(--color-null);
 }
-.query-field span.color-lparen, .query-field span.color-rparen {
+.query-field span.color-lparen,
+.query-field span.color-rparen {
   color: var(--color-round-brackets);
 }
-.query-field span.color-lbracket, .query-field span.color-rbracket {
+.query-field span.color-lbracket,
+.query-field span.color-rbracket {
   color: var(--color-square-brackets);
 }
 
@@ -381,14 +436,11 @@ export default {
   --color-background: #333;
   --color-base: #eee;
   --color-identifier: #7e9abf;
-  --color-string1:#de935f;
-  --color-string2:#de935f;
-  --color-bool:#a7bd68;
-  --color-num:#a7bd68;
+  --color-string1: #de935f;
+  --color-string2: #de935f;
+  --color-bool: #a7bd68;
+  --color-num: #a7bd68;
   --color-null: #a7bd68;
-  --color-selection-bg: rgba(244,244,244,0.2);
+  --color-selection-bg: rgba(244, 244, 244, 0.2);
 }
-
-
-
 </style>
