@@ -6,7 +6,7 @@
     "syntax": "syntax-cli -g src/parser/grammar.g -m lalr1 -o src/parser/parser.js"
   },
   "devDependencies": {
-    "kirbyup": "^0.9.5",
+    "kirbyup": "^0.12.0",
     "syntax-cli": "^0.1.22"
   }
 }
