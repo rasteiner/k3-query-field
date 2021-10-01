@@ -3,10 +3,17 @@
   "scripts": {
     "watch": "kirbyup src/index.js --watch",
     "build": "kirbyup src/index.js",
-    "syntax": "syntax-cli -g src/parser/grammar.g -m lalr1 -o src/parser/parser.js"
+    "syntax": "syntax-cli -g src/parser/grammar.g -m lalr1 -o src/parser/parser.js",
+    "lint": "eslint \"src/**/*.{js,vue}\"",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write \"src/**/*.{js,vue}\""
   },
   "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-vue": "^7.18.0",
     "kirbyup": "^0.12.0",
+    "prettier": "^2.4.1",
     "syntax-cli": "^0.1.22"
   }
 }
