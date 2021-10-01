@@ -1,28 +1,28 @@
 <template>
   <k-field v-bind="$attrs" class="query-field">
-    <div class="container" ref="container">
+    <div ref="container" class="container">
       <pre
         ref="editor"
         spellcheck="false"
-        @input="onInput($event.target.innerText)"
         :contenteditable="plaintextOnlySupport ? 'plaintext-only' : 'true'"
+        class="editor"
+        @input="onInput($event.target.innerText)"
         @keydown.tab.prevent="tabPress"
         @keypress.enter.prevent="enterPress"
-        class="editor"
-      ></pre>
-      <pre ref="styled" class="styled"></pre>
+      />
+      <pre ref="styled" class="styled" />
     </div>
-    <pre v-if="error && value" class="error" v-html="error"></pre>
+
+    <pre v-if="error && value" class="error" v-html="error" />
   </k-field>
 </template>
 
 <script>
-import * as parser from "../parser/parser";
+import parser from "../parser/parser";
 
 function supportsPlaintextEditables() {
   const div = document.createElement("div");
-  div.setAttribute("contenteditable", "PLAINTEXT-ONLY");
-
+  div.setAttribute("contenteditable", "plaintext-only");
   return div.contentEditable === "plaintext-only";
 }
 
@@ -38,11 +38,13 @@ function nodeToStr(node) {
           return node[1];
         case "boolean":
           return node[1] ? "true" : "false";
-        case "object": //object, array, null all resolve as "object". In KQL there are no objects
+        // KQL treats `object`, `array` and `null` as `object`
+        case "object":
           return node[1] === null
             ? "null"
             : `[${node[1].map(nodeToStr).join(", ")}]`;
       }
+      break;
     case "access":
       return node[1].map(nodeToStr).join(".");
     case "method":
@@ -73,6 +75,18 @@ function indent(lines) {
 }
 
 export default {
+  props: {
+    value: {
+      type: Object,
+      default() {
+        return {
+          literal: "",
+          clean: "",
+        };
+      },
+    },
+  },
+
   data() {
     return {
       error: null,
@@ -80,15 +94,6 @@ export default {
       observer: null,
       plaintextOnlySupport: supportsPlaintextEditables(),
     };
-  },
-  props: {
-    value: {
-      default: {
-        literal: "",
-        clean: "",
-      },
-      type: Object,
-    },
   },
 
   watch: {
@@ -121,16 +126,6 @@ export default {
 
   beforeDestroy() {
     this.observer.disconnect();
-  },
-
-  computed: {
-    query() {
-      if (this.ast) {
-        return nodeToStr(this.ast);
-      } else {
-        return "";
-      }
-    },
   },
 
   methods: {
@@ -241,7 +236,7 @@ export default {
       this.onInput(newText);
     },
 
-    enterPress(event) {
+    enterPress() {
       const selection = window.getSelection();
       const range = selection.getRangeAt(0);
       const allNodes = Array.from(this.$refs.editor.childNodes).filter(
@@ -325,12 +320,12 @@ export default {
             literal: text,
             clean: nodeToStr(ast),
           };
-        } catch (e) {
+        } catch (err) {
           this.ast = null;
 
           fragment.appendChild(document.createTextNode(text.slice(cur)));
           this.$refs.styled.appendChild(fragment);
-          this.error = e;
+          this.error = err;
 
           return {
             literal: text,
@@ -339,6 +334,7 @@ export default {
         }
       } else {
         this.error = null;
+
         return {
           literal: "",
           clean: "",
