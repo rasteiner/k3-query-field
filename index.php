@@ -39,8 +39,8 @@ Kirby::plugin('rasteiner/k3-query-field', [
           }
           if(!isset($data['literal'])) {
             return [
-              'literal' => $this->value,
-              'clean' => $this->value
+              'literal' => $this->value ?? '',
+              'clean' => $this->value ?? ''
             ];
           }
           return $data;
